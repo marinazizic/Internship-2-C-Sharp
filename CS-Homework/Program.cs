@@ -12,13 +12,18 @@ bool menuChoice = true;
 bool goBack,
     exitAnswer,
     sureToChange,
-    isDeleted;
+    isDeleted,
+    isChanged;
 int year,
     month,
     day;
 string userChoice,
     articleChoice,
-    deleteChoice;
+    deleteChoice,
+    editChoice,
+    chooseChoice,
+    saleChoice,
+    printChoice;
 
 do
 {
@@ -31,7 +36,7 @@ do
             exitAnswer = YesOrNo();
             if (exitAnswer)
                 menuChoice = false;
-            Console.Clear();
+
             break;
 
         case "1":
@@ -97,6 +102,7 @@ do
                     switch (deleteChoice)
                     {
                         case "a":
+                        case "a.":
                             isDeleted = false;
                             Console.WriteLine("Upišite ime artikla kojeg želite izbrisati.");
                             string articleToDelete = Console.ReadLine();
@@ -122,7 +128,9 @@ do
                                 menuChoice = false;
                             Console.Clear();
                             break;
+
                         case "b":
+                        case "b.":
                             isDeleted = false;
                             Console.WriteLine("Jeste li sigurni da želite izbrisati sve artikle kojima je prošao rok? y/n");
                             sureToChange = YesOrNo();
@@ -130,7 +138,7 @@ do
                             {
                                 foreach (var item in articles)
                                 {
-                                    if (item.Value.ExpiryDate < DateTime.Now)
+                                    if (item.Value.ExpiryDate < DateTime.Today)
                                     {
                                         articles.Remove(item.Key);
                                         isDeleted = true;
@@ -146,26 +154,123 @@ do
                                 menuChoice = false;
                             Console.Clear();
                             break;
+
                         default:
                             Console.WriteLine("Krivo unešena akcija!");
-                            Console.Clear();
                             break;
                     }
                     break;
-                default:
-                    Console.WriteLine("Krivo unešena akcija!");
-                    Console.Clear();
+                //case 3 ne radi
+                case "4":
+                    ShowPrintMenu();
+                    printChoice = Console.ReadLine();
+                    switch(printChoice) {
+                        case "a":
+                        case "a.":
+                            foreach (var item in articles)
+                            {
+                                double daysUntil = CountDownDays(item.Value.ExpiryDate);
+                                Console.WriteLine("{0} ({1}) - {2} - Broj dana do isteka: {3}", item.Key, item.Value.Quantity, item.Value.Price, daysUntil);
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+
+                        case "b":
+                        case "b.":
+                            var orderedByNameAsc = articles.OrderBy(k => k.Key).ToDictionary(k => k.Key, k => k.Value);
+                            foreach (var item in orderedByNameAsc)
+                            {
+                                Console.WriteLine("{0} ({1}) - {2} - Datum Isteka: {3}", item.Key, item.Value.Quantity, item.Value.Price, item.Value.ExpiryDate);
+
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        case "c":
+                        case "c.":
+                            var orderedByDateDesc = articles.OrderByDescending(x => x.Value.ExpiryDate).ToDictionary(x => x.Key, x => x.Value);
+                            foreach (var item in orderedByDateDesc)
+                            {
+                                Console.WriteLine("{0} ({1}) - {2} - Datum Isteka: {3}", item.Key, item.Value.Quantity, item.Value.Price, item.Value.ExpiryDate);
+
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+
+                        case "d":
+                        case "d.":
+                            var orderedByDateAsc = articles.OrderBy(x => x.Value.ExpiryDate).ToDictionary(x => x.Key, x => x.Value);
+                            foreach (var item in orderedByDateAsc)
+                            {
+                                Console.WriteLine("{0} ({1}) - {2} - Datum Isteka: {3}", item.Key, item.Value.Quantity, item.Value.Price, item.Value.ExpiryDate);
+
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        case "e":
+                        case "e.":
+                            var orderedByQuantity = articles.OrderBy(x => x.Value.Quantity).ToDictionary(x => x.Key, x => x.Value);
+                            foreach (var item in orderedByQuantity)
+                            {
+                                Console.WriteLine("{0} ({1}) - {2} - Datum Isteka: {3}", item.Key, item.Value.Quantity, item.Value.Price, item.Value.ExpiryDate);
+
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        case "f":
+                        case "f.":
+                            Console.WriteLine(findMostSoldArticle(articles));
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+
+                        case "g":
+                        case "g.":
+                            Console.WriteLine(findLeastSoldArticle(articles));
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+
+                        default:
+                            Console.WriteLine("Krivo unešena akcija!");
+                            break;
+                    }
                     break;
             };
-            Console.Clear();
             break;
 
         default:
-            Console.Clear();
             Console.WriteLine("Krivo unešena akcija!");
             break;
     };
 } while (menuChoice);
+
+
 static void ShowMenu()
 {
     Console.WriteLine("1 - Artikli");
@@ -181,6 +286,17 @@ static void ShowArticleMenu()
     Console.WriteLine("2 - Brisanje artikla");
     Console.WriteLine("3 - Uređivanje artikla");
     Console.WriteLine("4 - Ispis");
+}
+
+static void ShowPrintMenu()
+{
+    Console.WriteLine("a. Ispis svih artikala kako su spremljeni");
+    Console.WriteLine("b. Ispis svih artikala sortirano po imenu");
+    Console.WriteLine("c. Ispis svih artikala sortirano po datumu silazno");
+    Console.WriteLine("d. Ispis svih artikala sortirano po datumu uzlazno");
+    Console.WriteLine("e. Ispis svih artikala sortirano po količini");
+    Console.WriteLine("f. Najprodavaniji artikl");
+    Console.WriteLine("g. Najmanje prodavan artikl");
 }
 
 static bool YesOrNo()
@@ -288,4 +404,49 @@ static double CheckIfDouble()
         }
 
     }
+}
+
+static double CountDownDays(DateTime specificDate)
+{
+    DateTime today = DateTime.Today;
+    var days = (specificDate - today).TotalDays;
+    return days;
+}
+
+static (string tName, int tQuantity, double tPrice, DateTime tDate) findMostSoldArticle(Dictionary<string, (int q, double p, DateTime d)> dict)
+{
+
+    var mostSold = (tName: "", tQuantity: 0, tPrice: 0.1, tDate: new DateTime(2000, 01, 01));
+    int mostSales = 100;
+    foreach (var item in dict)
+    {
+        if (item.Value.q < mostSales)
+        {
+            mostSales = item.Value.q;
+            mostSold.tName = item.Key;
+            mostSold.tQuantity = item.Value.q;
+            mostSold.tPrice = item.Value.p;
+            mostSold.tDate = item.Value.d;
+        }
+    }
+    return mostSold;
+}
+
+static (string tName, int tQuantity, double tPrice, DateTime tDate) findLeastSoldArticle(Dictionary<string, (int q, double p, DateTime d)> dict)
+{
+
+    var leastSold = (tName: "", tQuantity: 0, tPrice: 0.1, tDate: new DateTime(2000, 01, 01));
+    int leastSales = 0;
+    foreach (var item in dict)
+    {
+        if (item.Value.q > leastSales)
+        {
+            leastSales = item.Value.q;
+            leastSold.tName = item.Key;
+            leastSold.tQuantity = item.Value.q;
+            leastSold.tPrice = item.Value.p;
+            leastSold.tDate = item.Value.d;
+        }
+    }
+    return leastSold;
 }
