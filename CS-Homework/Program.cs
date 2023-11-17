@@ -8,22 +8,37 @@
     {"Puding", (12, 1.2, new DateTime(2023,11,15))}
 };
 
+var workers = new Dictionary<string, DateTime>()
+{
+    {"Ivana",  new DateTime(1993,03,24)},
+    {"Željka",  new DateTime(1968,11,08)},
+    {"Perica",  new DateTime(1975,05,01)}
+};
+
 bool menuChoice = true;
 bool goBack,
     exitAnswer,
     sureToChange,
     isDeleted,
-    isChanged;
+    isChanged,
+    isBirthdayThisMonth;
 int year,
     month,
-    day;
+    day,
+    newYear,
+    newMonth,
+    newDay;
 string userChoice,
     articleChoice,
     deleteChoice,
     editChoice,
     chooseChoice,
     saleChoice,
-    printChoice;
+    printChoice,
+    workersChoice,
+    deleteWorkersChoice,
+    chooseWorkerChoice,
+    printWorkersChoice;
 
 do
 {
@@ -160,11 +175,237 @@ do
                             break;
                     }
                     break;
-                //case 3 ne radi
+                case "3":
+                    Console.WriteLine("a. Zasebno uređivanje proizvoda");
+                    Console.WriteLine("b. Popust/poskupljenje na sve proizvode");
+                    editChoice = Console.ReadLine();
+                    switch (editChoice)
+                    {
+                        case "a":
+                        case "a.":
+                            isChanged = false;
+                            Console.WriteLine("Upišite ime artikla kojeg želite urediti.");
+                            string articleToEdit = Console.ReadLine();
+                            foreach (var item in articles)
+                            {
+                                if (articleToEdit == item.Key)
+                                {
+                                    string nameArticle = item.Key;
+                                    int quantityArticle = item.Value.Quantity;
+                                    double priceArticle = item.Value.Price;
+                                    DateTime dateArticle = item.Value.ExpiryDate;
+                                    Console.WriteLine("1. Urediti ime");
+                                    Console.WriteLine("2. Urediti količinu");
+                                    Console.WriteLine("3. Urediti cijenu");
+                                    Console.WriteLine("4. Urediti rok trajanja");
+                                    chooseChoice = Console.ReadLine();
+                                    switch (chooseChoice)
+                                    {
+                                        case "1":
+                                            isChanged = false;
+                                            Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
+                                            sureToChange = YesOrNo();
+                                            if (sureToChange)
+                                            {
+                                                Console.WriteLine("Upišite novo ime");
+                                                string newName = Console.ReadLine();
+                                                articles.Remove(nameArticle);
+                                                articles.Add(newName, (quantityArticle, priceArticle, dateArticle));
+                                                isChanged = true;
+                                            }
+                                            if (!isChanged)
+                                                Console.WriteLine("Nije pronađen i uređen artikl.");
+                                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                            goBack = YesOrNo();
+                                            if (!goBack)
+                                                menuChoice = false;
+                                            Console.Clear();
+                                            break;
+                                        case "2":
+                                            isChanged = false;
+                                            Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
+                                            sureToChange = YesOrNo();
+                                            if (sureToChange)
+                                            {
+                                                Console.WriteLine("Upišite novu količinu");
+                                                int newQuantity = CheckIfInt();
+                                                articles.Remove(nameArticle);
+                                                articles.Add(nameArticle, (newQuantity, priceArticle, dateArticle));
+                                                isChanged = true;
+                                            }
+                                            if (!isChanged)
+                                                Console.WriteLine("Nije pronađen i uređen artikl.");
+                                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                            goBack = YesOrNo();
+                                            if (!goBack)
+                                                menuChoice = false;
+                                            Console.Clear();
+                                            break;
+                                        case "3":
+                                            isChanged = false;
+                                            Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
+                                            sureToChange = YesOrNo();
+                                            if (sureToChange)
+                                            {
+                                                Console.WriteLine("Upišite novu cijenu");
+                                                double newPrice = CheckIfDouble();
+                                                articles.Remove(nameArticle);
+                                                articles.Add(nameArticle, (quantityArticle, newPrice, dateArticle));
+                                                isChanged = true;
+                                            }
+                                            if (!isChanged)
+                                                Console.WriteLine("Nije pronađen i uređen artikl.");
+                                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                            goBack = YesOrNo();
+                                            if (!goBack)
+                                                menuChoice = false;
+                                            Console.Clear();
+                                            break;
+                                        case "4":
+                                            isChanged = false;
+                                            Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
+                                            sureToChange = YesOrNo();
+                                            if (sureToChange)
+                                            {
+                                                Console.WriteLine("Upišite novu godinu");
+                                                while (true)
+                                                {
+                                                    newYear = CheckIfInt();
+                                                    bool checkNewYear = CheckIfYear(newYear);
+                                                    if (checkNewYear)
+                                                        break;
+                                                    else
+                                                        continue;
+                                                }
+                                                Console.WriteLine("Upišite novi mjesec");
+                                                while (true)
+                                                {
+                                                    newMonth = CheckIfInt();
+                                                    bool checkNewMonth = CheckIfMonth(newMonth);
+                                                    if (checkNewMonth)
+                                                        break;
+                                                    else
+                                                        continue;
+                                                }
+                                                Console.WriteLine("Upišite novi dan");
+
+                                                while (true)
+                                                {
+                                                    newDay = CheckIfInt();
+                                                    bool checkNewDay = CheckIfDay(newDay);
+                                                    if (checkNewDay)
+                                                        break;
+                                                    else
+                                                        continue;
+                                                }
+                                                DateTime newDate = new DateTime(newYear, newMonth, newDay);
+                                                articles.Remove(nameArticle);
+                                                articles.Add(nameArticle, (quantityArticle, priceArticle, newDate));
+                                                isChanged = true;
+                                            }
+                                            if (!isChanged)
+                                                Console.WriteLine("Nije pronađen i uređen artikl.");
+                                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                            goBack = YesOrNo();
+                                            if (!goBack)
+                                                menuChoice = false;
+                                            Console.Clear();
+                                            break;
+                                        default:
+                                            Console.WriteLine("Krivo unešena akcija!");
+                                            break;
+                                    }
+                                }
+                                break;
+                            }
+                            if (!isChanged)
+                            {
+                                Console.WriteLine("Nije pronađen ni uređen proizvod.");
+                                Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                goBack = YesOrNo();
+                                if (!goBack)
+                                    menuChoice = false;
+                                Console.Clear();
+                            }
+                            break;
+                        case "b":
+                        case "b.":
+                            Console.WriteLine("a. Popust");
+                            Console.WriteLine("b. Poskupljenje");
+                            saleChoice = Console.ReadLine();
+                            switch (saleChoice)
+                            {
+                                case "a":
+                                case "a.":
+                                    Console.WriteLine("Upišite koliki želite postotak bez znaka %");
+                                    int percentage = CheckIfInt();
+                                    Console.WriteLine("Jeste li sigurni da želite dati popust? y/n");
+                                    sureToChange = YesOrNo();
+                                    if (sureToChange)
+                                    {
+                                        foreach (var item in articles.OrderBy(x => x.Key))
+                                        {
+
+                                            string nameArticle = item.Key;
+                                            int quantityArticle = item.Value.Quantity;
+                                            double priceArticle = item.Value.Price;
+                                            DateTime dateArticle = item.Value.ExpiryDate;
+                                            double priceToRemove = (priceArticle / 100) * percentage;
+                                            double newPrice = priceArticle - priceToRemove;
+                                            articles.Remove(nameArticle);
+                                            articles.Add(nameArticle, (quantityArticle, newPrice, dateArticle));
+                                        }
+                                    }
+                                    Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                    goBack = YesOrNo();
+                                    if (!goBack)
+                                        menuChoice = false;
+                                    Console.Clear();
+                                    break;
+
+                                case "b":
+                                case "b.":
+                                    Console.WriteLine("Upišite koliki želite postotak bez znaka %");
+                                    int percentageSale = CheckIfInt();
+                                    Console.WriteLine("Jeste li sigurni da želite dati poskupljenje? y/n");
+                                    sureToChange = YesOrNo();
+                                    if (sureToChange)
+                                    {
+                                        foreach (var item in articles.OrderBy(x => x.Key))
+                                        {
+
+                                            string nameArticle = item.Key;
+                                            int quantityArticle = item.Value.Quantity;
+                                            double priceArticle = item.Value.Price;
+                                            DateTime dateArticle = item.Value.ExpiryDate;
+                                            double priceToRemove = (priceArticle / 100) * percentageSale;
+                                            double newPrice = priceArticle + priceToRemove;
+                                            articles.Remove(nameArticle);
+                                            articles.Add(nameArticle, (quantityArticle, newPrice, dateArticle));
+                                        }
+                                    }
+                                    Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                    goBack = YesOrNo();
+                                    if (!goBack)
+                                        menuChoice = false;
+                                    Console.Clear();
+                                    break;
+                                default:
+                                    Console.WriteLine("Krivo unešena akcija!");
+                                    break;
+                            }
+                            break;
+                        default:
+                            Console.WriteLine("Krivo unešena akcija!");
+                            break;
+                    }
+                    break;
+
                 case "4":
                     ShowPrintMenu();
                     printChoice = Console.ReadLine();
-                    switch(printChoice) {
+                    switch (printChoice)
+                    {
                         case "a":
                         case "a.":
                             foreach (var item in articles)
@@ -264,6 +505,251 @@ do
             };
             break;
 
+        case "2":
+            ShowWorkersMenu();
+            workersChoice = Console.ReadLine();
+            switch (workersChoice)
+            {
+                case "1":
+                    Console.WriteLine("Upišite ime radnika");
+                    string name = Console.ReadLine();
+
+                    Console.WriteLine("Upišite godinu rođenja radnika");
+                    while (true)
+                    {
+                        year = CheckIfInt();
+                        bool checkYear = CheckIfYear(year);
+                        if (checkYear)
+                            break;
+                        else
+                            continue;
+                    }
+                    Console.WriteLine("Upišite mjesec rođenja radnika");
+                    while (true)
+                    {
+                        month = CheckIfInt();
+                        bool checkMonth = CheckIfMonth(month);
+                        if (checkMonth)
+                            break;
+                        else
+                            continue;
+                    }
+
+                    Console.WriteLine("Upišite dan rođenja radnika");
+                    while (true)
+                    {
+                        day = CheckIfInt();
+                        bool checkDay = CheckIfDay(day);
+                        if (checkDay)
+                            break;
+                        else
+                            continue;
+                    }
+                    var birthDate = new DateTime(year, month, day);
+                    workers.Add(name, birthDate);
+
+                    Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                    goBack = YesOrNo();
+                    if (!goBack)
+                        menuChoice = false;
+                    Console.Clear();
+                    break;
+                case "2":
+                    Console.WriteLine("a. Po imenu");
+                    Console.WriteLine("b. Sve one koji imaju više od 65 godina");
+                    deleteWorkersChoice = Console.ReadLine();
+                    switch (deleteWorkersChoice)
+                    {
+                        case "a":
+                        case "a.":
+                            isDeleted = false;
+                            Console.WriteLine("Upišite ime radnika kojeg želite izbrisati");
+                            string workerToDelete = Console.ReadLine();
+                            foreach (var item in workers)
+                            {
+                                if (workerToDelete == item.Key)
+                                {
+                                    Console.WriteLine("Jeste li sigurni da želite izbrisati navedenog radnika? y/n");
+                                    sureToChange = YesOrNo();
+                                    if (sureToChange)
+                                    {
+                                        articles.Remove(item.Key);
+                                        isDeleted = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!isDeleted)
+                                Console.WriteLine("Nije pronađen radnik.");
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        case "b":
+                        case "b.":
+                            isDeleted = false;
+                            foreach (var item in workers)
+                            {
+                                double yearsFrom = CountDownYears(item.Value);
+                                if (yearsFrom <= -65)
+                                {
+                                    Console.WriteLine("Jeste li sigurni da želite izbrisati radnike starije od 65 godina? y/n");
+                                    sureToChange = YesOrNo();
+                                    if (sureToChange)
+                                    {
+                                        workers.Remove(item.Key);
+                                        isDeleted = true;
+                                    }
+                                }
+                            }
+                            if (!isDeleted)
+                                Console.WriteLine("Nije pronađen radnik.");
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        default:
+                            Console.WriteLine("Krivo unešena akcija!");
+                            break;
+                    }
+                    break;
+                case "3":
+                    isChanged = false;
+                    Console.WriteLine("Upišite ime radnika kojeg želite urediti.");
+                    string workerToEdit = Console.ReadLine();
+                    foreach (var item in workers.OrderBy(x => x.Key))
+                    {
+                        if (workerToEdit == item.Key)
+                        {
+                            string workerName = item.Key;
+                            DateTime workerBirth = item.Value;
+                            Console.WriteLine("1. Urediti ime");
+                            Console.WriteLine("2. Urediti datum rođenja");
+                            chooseWorkerChoice = Console.ReadLine();
+                            switch (chooseWorkerChoice)
+                            {
+                                case "1":
+                                    isChanged = false;
+                                    Console.WriteLine("Jeste li sigurni da želite urediti ime radnika? y/n");
+                                    sureToChange = YesOrNo();
+                                    if (sureToChange)
+                                    {
+                                        Console.WriteLine("Upišite novo ime");
+                                        string newWorkerName = Console.ReadLine();
+                                        workers.Remove(workerName);
+                                        workers.Add(newWorkerName, workerBirth);
+                                        isChanged = true;
+                                    }
+                                    if (!isChanged)
+                                        Console.WriteLine("Nije pronađen i uređen radnik.");
+                                    Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                    goBack = YesOrNo();
+                                    if (!goBack)
+                                        menuChoice = false;
+                                    Console.Clear();
+                                    break;
+                                case "2":
+                                    isChanged = false;
+                                    Console.WriteLine("Jeste li sigurni da želite urediti datum rođenja radnika? y/n");
+                                    sureToChange = YesOrNo();
+                                    if (sureToChange)
+                                    {
+                                        Console.WriteLine("Upišite novu godinu");
+                                        while (true)
+                                        {
+                                            newYear = CheckIfInt();
+                                            bool checkNewYear = CheckIfYear(newYear);
+                                            if (checkNewYear)
+                                                break;
+                                            else
+                                                continue;
+                                        }
+                                        Console.WriteLine("Upišite novi mjesec");
+                                        while (true)
+                                        {
+                                            newMonth = CheckIfInt();
+                                            bool checkNewMonth = CheckIfMonth(newMonth);
+                                            if (checkNewMonth)
+                                                break;
+                                            else
+                                                continue;
+                                        }
+                                        Console.WriteLine("Upišite novi dan");
+
+                                        while (true)
+                                        {
+                                            newDay = CheckIfInt();
+                                            bool checkNewDay = CheckIfDay(newDay);
+                                            if (checkNewDay)
+                                                break;
+                                            else
+                                                continue;
+                                        }
+                                        DateTime newBirthDate = new DateTime(newYear, newMonth, newDay);
+                                        workers.Remove(workerName);
+                                        workers.Add(workerName, newBirthDate);
+                                        isChanged = true;
+                                    }
+                                    if (!isChanged)
+                                        Console.WriteLine("Nije pronađen i uređen radnik.");
+                                    Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                                    goBack = YesOrNo();
+                                    if (!goBack)
+                                        menuChoice = false;
+                                    Console.Clear();
+                                    break;
+                            }
+                        }
+                    }
+                    if (!isChanged)
+                        Console.WriteLine("Nije pronađen i uređen radnik.");
+                    break;
+                case "4":
+                    Console.WriteLine("a. Ispis svih radnika");
+                    Console.WriteLine("b. Ispis svih radnika kojima je rođendan u tekućem mjesecu");
+                    printWorkersChoice = Console.ReadLine();
+                    switch (printWorkersChoice)
+                    {
+                        case "a":
+                        case "a.":
+                            foreach (var item in workers)
+                            {
+                                double yearsFrom = CountDownYears(item.Value);
+                                Console.WriteLine("{0} - {1}", item.Key, Math.Abs(Math.Round(yearsFrom)));
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        case "b":
+                        case "b.":
+                            foreach (var item in workers)
+                            {
+                                double yearsFrom = CountDownYears(item.Value);
+                                isBirthdayThisMonth = CheckIfBirthdayThisMonth(item.Value);
+                                if (isBirthdayThisMonth)
+                                    Console.WriteLine("{0} - {1}", item.Key, Math.Abs(Math.Round(yearsFrom)));
+                            }
+                            Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                            goBack = YesOrNo();
+                            if (!goBack)
+                                menuChoice = false;
+                            Console.Clear();
+                            break;
+                        default:
+                            Console.WriteLine("Krivo unešena akcija!");
+                            break;
+                    }
+
+                    break;
+            }
+            break;
         default:
             Console.WriteLine("Krivo unešena akcija!");
             break;
@@ -297,6 +783,14 @@ static void ShowPrintMenu()
     Console.WriteLine("e. Ispis svih artikala sortirano po količini");
     Console.WriteLine("f. Najprodavaniji artikl");
     Console.WriteLine("g. Najmanje prodavan artikl");
+}
+
+static void ShowWorkersMenu()
+{
+    Console.WriteLine("1 - Unos radnika");
+    Console.WriteLine("2 - Brisanje radnika");
+    Console.WriteLine("3 - Uređivanje radnika");
+    Console.WriteLine("4 - Ispis");
 }
 
 static bool YesOrNo()
@@ -413,6 +907,14 @@ static double CountDownDays(DateTime specificDate)
     return days;
 }
 
+static double CountDownYears(DateTime specificDate)
+{
+    DateTime today = DateTime.Today;
+    var years = (specificDate - today).TotalDays;
+    years = years / 365;
+    return years;
+}
+
 static (string tName, int tQuantity, double tPrice, DateTime tDate) findMostSoldArticle(Dictionary<string, (int q, double p, DateTime d)> dict)
 {
 
@@ -449,4 +951,13 @@ static (string tName, int tQuantity, double tPrice, DateTime tDate) findLeastSol
         }
     }
     return leastSold;
+}
+
+static bool CheckIfBirthdayThisMonth(DateTime bd)
+{
+    var thisMonth = DateTime.Now.Month.ToString("00");
+    var birthdayMonth = bd.Month.ToString("00");
+    if (thisMonth == birthdayMonth)
+        return true;
+    return false;
 }
