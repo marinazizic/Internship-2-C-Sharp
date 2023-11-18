@@ -15,13 +15,26 @@ var workers = new Dictionary<string, DateTime>()
     {"Perica",  new DateTime(1975,05,01)}
 };
 
+var boughtArticles = new Dictionary<string, int>()
+{
+
+};
+
+var receipt = new Dictionary<int, (Dictionary<string, int>, DateTime timeBought, double fullPrice)>()
+{
+};
+
 bool menuChoice = true;
 bool goBack,
     exitAnswer,
     sureToChange,
     isDeleted,
     isChanged,
-    isBirthdayThisMonth;
+    isBirthdayThisMonth,
+    isFound,
+    isDone,
+    checkReceipt,
+    isReceiptFound;
 int year,
     month,
     day,
@@ -38,8 +51,13 @@ string userChoice,
     workersChoice,
     deleteWorkersChoice,
     chooseWorkerChoice,
-    printWorkersChoice;
+    printWorkersChoice,
+    receiptChoice,
+    statisticsChoice;
 
+int ID = 0;
+double fullPrice = 0;
+DateTime dateWhenBought;
 do
 {
     ShowMenu();
@@ -502,6 +520,9 @@ do
                             break;
                     }
                     break;
+                default:
+                    Console.WriteLine("Krivo unešena akcija!");
+                    break;
             };
             break;
 
@@ -746,8 +767,257 @@ do
                             Console.WriteLine("Krivo unešena akcija!");
                             break;
                     }
-
                     break;
+                default:
+                    Console.WriteLine("Krivo unešena akcija!");
+                    break;
+            }
+            break;
+        case "3":
+            Console.WriteLine("1 - Unos novog računa");
+            Console.WriteLine("2 - Ispis");
+            receiptChoice = Console.ReadLine();
+            switch (receiptChoice)
+            {
+                case "1":
+                    isDone = true;
+                    foreach (var item in articles.OrderBy(x => x.Key))
+                    {
+                        double daysUntil = CountDownDays(item.Value.ExpiryDate);
+                        if (item.Value.Quantity > 0)
+                            Console.WriteLine("{0} ({1}) - {2} - Broj dana do isteka: {3}", item.Key, item.Value.Quantity, item.Value.Price, daysUntil);
+                    }
+                    boughtArticles.Clear();
+                    fullPrice = 0;
+                    do
+                    {
+                        isFound = false;
+                        Console.WriteLine("Upišite ime artikla");
+                        string articleToBuy = Console.ReadLine();
+                        foreach (var item in articles.OrderBy(x => x.Key))
+                        {
+                            string nameArticle = item.Key;
+                            double priceArticle = item.Value.Price;
+                            DateTime dateArticle = item.Value.ExpiryDate;
+                            if (articleToBuy == item.Key)
+                            {
+                                isFound = true;
+                                do
+                                {
+                                    Console.WriteLine("Upišite količinu");
+                                    int amountToBuy = CheckIfInt();
+                                    if (item.Value.Quantity >= amountToBuy)
+                                    {
+                                        int quantityArticle = item.Value.Quantity - amountToBuy;
+                                        boughtArticles.Add(articleToBuy, amountToBuy);
+                                        fullPrice += amountToBuy * item.Value.Price;
+                                        if (quantityArticle == 0)
+                                            articles.Remove(item.Key);
+                                        else
+                                        {
+                                            articles.Remove(item.Key);
+                                            articles.Add(nameArticle, (quantityArticle, priceArticle, dateArticle));
+                                        }
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Nema dovoljno artikla! Upišite broj manji ili jednak {0}", item.Value.Quantity);
+                                        continue;
+                                    }
+                                } while (true);
+                            }
+                        }
+                        if (!isFound)
+                            Console.WriteLine("Nije pronađen nijedan artikl.");
+                        Console.WriteLine("Dodati još artikla? y/n");
+                        isDone = YesOrNo();
+                    } while (isDone);
+                    dateWhenBought = DateTime.Now;
+                    receipt.Add(ID, (boughtArticles, dateWhenBought, fullPrice));
+                    foreach (var item in receipt)
+                    {
+                        if (item.Key == ID)
+                        {
+                            Console.WriteLine("{0} - {1} - {2:0.00}", item.Key, item.Value.timeBought, item.Value.fullPrice);
+                        }
+                    };
+                    ID++;
+
+                    Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                    goBack = YesOrNo();
+                    if (!goBack)
+                        menuChoice = false;
+                    Console.Clear();
+                    break;
+                case "2":
+                    int IDReceipt;
+                    foreach (var item in receipt)
+                    {
+                        Console.WriteLine("{0} - {1} - {2:0.00}", item.Key, item.Value.timeBought, item.Value.fullPrice);
+                    };
+                    Console.WriteLine("Detalji specifičnog računa y/n");
+                    checkReceipt = YesOrNo();
+                    if (!checkReceipt)
+                    {
+                        Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                        goBack = YesOrNo();
+                        if (!goBack)
+                            menuChoice = false;
+                        Console.Clear();
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("Upišite ID računa");
+                        IDReceipt = CheckIfInt();
+                        isReceiptFound = false;
+                        foreach (var item in receipt)
+                        {
+                            if (item.Key == IDReceipt)
+                            {
+                                isReceiptFound = true;
+                                Console.WriteLine("{0} - {1}", item.Key, item.Value.timeBought);
+                                foreach (var item1 in boughtArticles)
+                                {
+                                    Console.WriteLine("{0} - {1}", item1.Key, item1.Value);
+                                }
+                                Console.WriteLine("Sveukupna cijena: {0}", item.Value.fullPrice);
+                            }
+                        }
+                        if (!isReceiptFound)
+                            Console.WriteLine("Nije pronađen nijedan račun.");
+                        Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                        goBack = YesOrNo();
+                        if (!goBack)
+                            menuChoice = false;
+                        Console.Clear();
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Krivo unešena akcija!");
+                    break;
+            }
+            break;
+        case "4":
+            Console.WriteLine("Upišite šifru");
+            int passwordTry = CheckIfInt();
+            int password = 1234;
+            int countedArticles = 0;
+            double valueOfNotBought = 0;
+            double valueOfBought = 0;
+            if (passwordTry == password)
+            {
+                ShowStatisticsMenu();
+                statisticsChoice = Console.ReadLine();
+                switch (statisticsChoice)
+                {
+                    case "1":
+                        foreach (var item in articles)
+                        {
+                            countedArticles += item.Value.Quantity;
+                        }
+                        Console.WriteLine("Ukupan broj artikala u trgovini je {0}", countedArticles);
+                        Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                        goBack = YesOrNo();
+                        if (!goBack)
+                            menuChoice = false;
+                        Console.Clear();
+                        break;
+                    case "2":
+                        foreach (var item in articles)
+                        {
+                            valueOfNotBought += item.Value.Quantity * item.Value.Price;
+                        }
+                        Console.WriteLine("Ukupna vrijednost artikala koji nisu prodani u trgovini je {0}", valueOfNotBought);
+                        Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                        goBack = YesOrNo();
+                        if (!goBack)
+                            menuChoice = false;
+                        Console.Clear();
+                        break;
+                    case "3":
+                        foreach (var item in receipt)
+                        {
+                            valueOfBought += item.Value.fullPrice;
+                        }
+                        Console.WriteLine("Ukupna vrijednost artikala koji su prodani u trgovini je {0}", valueOfBought);
+                        Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                        goBack = YesOrNo();
+                        if (!goBack)
+                            menuChoice = false;
+                        Console.Clear();
+                        break;
+                    case "4":
+                        int dayStatistics;
+                        int monthStatistics;
+                        int yearStatistics;
+                        Console.WriteLine("Upišite dan datuma");
+                        while (true)
+                        {
+                            dayStatistics = CheckIfInt();
+                            bool checkStatsDay = CheckIfDay(dayStatistics);
+                            if (checkStatsDay)
+                                break;
+                            else
+                                continue;
+                        }
+
+                        Console.WriteLine("Upišite mjesec datuma");
+                        while (true)
+                        {
+                            monthStatistics = CheckIfInt();
+                            bool checkStatsMonth = CheckIfMonth(monthStatistics);
+                            if (checkStatsMonth)
+                                break;
+                            else
+                                continue;
+                        }
+                        Console.WriteLine("Upišite godinu datuma");
+                        while (true)
+                        {
+                            yearStatistics = CheckIfInt();
+                            bool checkStatsYear = CheckIfYear(yearStatistics);
+                            if (checkStatsYear)
+                                break;
+                            else
+                                continue;
+                        }
+                        DateTime statsDate = new DateTime(yearStatistics, monthStatistics, dayStatistics);
+                        Console.WriteLine("Upišite plaću radnika");
+                        double monthlyPay = CheckIfDouble();
+                        Console.WriteLine("Upišite iznos najma");
+                        double monthlyLease = CheckIfDouble();
+                        Console.WriteLine("Upišite iznos ostalih troškova");
+                        double monthlyCharges = CheckIfDouble();
+                        double formulaPrice = (workers.Count * monthlyPay) + monthlyLease + monthlyCharges;
+                        double formulaBought = 0;
+                        foreach (var item in receipt)
+                        {
+                            formulaBought += item.Value.fullPrice;
+                        }
+                        double formulaPrices = formulaPrice / 3;
+                        double conditionThisMonth = formulaBought  * formulaPrices;
+                        Console.WriteLine("Stanje {0} je {1} eura", statsDate, conditionThisMonth);
+                        Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                        goBack = YesOrNo();
+                        if (!goBack)
+                            menuChoice = false;
+                        Console.Clear();
+                        break;
+                    default:
+                        Console.WriteLine("Krivo unešena akcija!");
+                        break;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Krivo unošena šifra!");
+                Console.WriteLine("Vratiti se na glavni izbornik? y/n");
+                goBack = YesOrNo();
+                if (!goBack)
+                    menuChoice = false;
+                Console.Clear();
             }
             break;
         default:
@@ -791,6 +1061,14 @@ static void ShowWorkersMenu()
     Console.WriteLine("2 - Brisanje radnika");
     Console.WriteLine("3 - Uređivanje radnika");
     Console.WriteLine("4 - Ispis");
+}
+
+static void ShowStatisticsMenu()
+{
+    Console.WriteLine("1 - Ukupan broj artikala u trgovini");
+    Console.WriteLine("2 - Vrijednost artikala koji nisu prodani");
+    Console.WriteLine("3 - Vrijednost artikla koji su prodani");
+    Console.WriteLine("4 - Stanje po mjesecima");
 }
 
 static bool YesOrNo()
