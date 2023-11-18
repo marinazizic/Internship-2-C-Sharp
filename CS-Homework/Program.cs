@@ -202,12 +202,14 @@ do
                         case "a":
                         case "a.":
                             isChanged = false;
+                            isFound = false;
                             Console.WriteLine("Upišite ime artikla kojeg želite urediti.");
                             string articleToEdit = Console.ReadLine();
                             foreach (var item in articles)
                             {
                                 if (articleToEdit == item.Key)
                                 {
+                                    isFound = true;
                                     string nameArticle = item.Key;
                                     int quantityArticle = item.Value.Quantity;
                                     double priceArticle = item.Value.Price;
@@ -217,10 +219,10 @@ do
                                     Console.WriteLine("3. Urediti cijenu");
                                     Console.WriteLine("4. Urediti rok trajanja");
                                     chooseChoice = Console.ReadLine();
+                                    isChanged = false;
                                     switch (chooseChoice)
                                     {
                                         case "1":
-                                            isChanged = false;
                                             Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
                                             sureToChange = YesOrNo();
                                             if (sureToChange)
@@ -229,10 +231,7 @@ do
                                                 string newName = Console.ReadLine();
                                                 articles.Remove(nameArticle);
                                                 articles.Add(newName, (quantityArticle, priceArticle, dateArticle));
-                                                isChanged = true;
                                             }
-                                            if (!isChanged)
-                                                Console.WriteLine("Nije pronađen i uređen artikl.");
                                             Console.WriteLine("Vratiti se na glavni izbornik? y/n");
                                             goBack = YesOrNo();
                                             if (!goBack)
@@ -240,7 +239,6 @@ do
                                             Console.Clear();
                                             break;
                                         case "2":
-                                            isChanged = false;
                                             Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
                                             sureToChange = YesOrNo();
                                             if (sureToChange)
@@ -249,10 +247,7 @@ do
                                                 int newQuantity = CheckIfInt();
                                                 articles.Remove(nameArticle);
                                                 articles.Add(nameArticle, (newQuantity, priceArticle, dateArticle));
-                                                isChanged = true;
                                             }
-                                            if (!isChanged)
-                                                Console.WriteLine("Nije pronađen i uređen artikl.");
                                             Console.WriteLine("Vratiti se na glavni izbornik? y/n");
                                             goBack = YesOrNo();
                                             if (!goBack)
@@ -260,7 +255,6 @@ do
                                             Console.Clear();
                                             break;
                                         case "3":
-                                            isChanged = false;
                                             Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
                                             sureToChange = YesOrNo();
                                             if (sureToChange)
@@ -269,10 +263,7 @@ do
                                                 double newPrice = CheckIfDouble();
                                                 articles.Remove(nameArticle);
                                                 articles.Add(nameArticle, (quantityArticle, newPrice, dateArticle));
-                                                isChanged = true;
                                             }
-                                            if (!isChanged)
-                                                Console.WriteLine("Nije pronađen i uređen artikl.");
                                             Console.WriteLine("Vratiti se na glavni izbornik? y/n");
                                             goBack = YesOrNo();
                                             if (!goBack)
@@ -280,7 +271,6 @@ do
                                             Console.Clear();
                                             break;
                                         case "4":
-                                            isChanged = false;
                                             Console.WriteLine("Jeste li sigurni da želite urediti navedeni artikl? y/n");
                                             sureToChange = YesOrNo();
                                             if (sureToChange)
@@ -319,10 +309,7 @@ do
                                                 DateTime newDate = new DateTime(newYear, newMonth, newDay);
                                                 articles.Remove(nameArticle);
                                                 articles.Add(nameArticle, (quantityArticle, priceArticle, newDate));
-                                                isChanged = true;
                                             }
-                                            if (!isChanged)
-                                                Console.WriteLine("Nije pronađen i uređen artikl.");
                                             Console.WriteLine("Vratiti se na glavni izbornik? y/n");
                                             goBack = YesOrNo();
                                             if (!goBack)
@@ -336,7 +323,7 @@ do
                                 }
                                 break;
                             }
-                            if (!isChanged)
+                            if (!isFound)
                             {
                                 Console.WriteLine("Nije pronađen ni uređen proizvod.");
                                 Console.WriteLine("Vratiti se na glavni izbornik? y/n");
@@ -997,7 +984,7 @@ do
                             formulaBought += item.Value.fullPrice;
                         }
                         double formulaPrices = formulaPrice / 3;
-                        double conditionThisMonth = formulaBought  * formulaPrices;
+                        double conditionThisMonth = formulaBought * formulaPrices;
                         Console.WriteLine("Stanje {0} je {1} eura", statsDate, conditionThisMonth);
                         Console.WriteLine("Vratiti se na glavni izbornik? y/n");
                         goBack = YesOrNo();
