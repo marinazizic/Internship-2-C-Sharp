@@ -205,7 +205,7 @@ do
                             isFound = false;
                             Console.WriteLine("Upišite ime artikla kojeg želite urediti.");
                             string articleToEdit = Console.ReadLine();
-                            foreach (var item in articles)
+                            foreach (var item in articles.OrderBy(y => y.Key))
                             {
                                 if (articleToEdit == item.Key)
                                 {
